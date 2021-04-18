@@ -30,3 +30,10 @@
 *.exe
 *.out
 *.app
+
+# idea files
+.idea
+
+# CMake stuff
+CMakeFiles
+build
