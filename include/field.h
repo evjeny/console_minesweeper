@@ -84,6 +84,8 @@ public:
 
     void print_field_status(std::ostream &stream, size_t x, size_t y);
 
+    void print_field_header(std::ostream &stream);
+
     size_t get_closed_cells_count() {
         return closed_cells - marks;
     }

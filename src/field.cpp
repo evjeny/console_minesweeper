@@ -3,10 +3,13 @@
 //
 
 #include "../include/field.h"
+#include "../include/color_print.h"
 
 #include <random>
 #include <algorithm>
 #include <numeric>
+
+#define print_color(color, c) stream << color##_color << (c) << reset_color
 
 size_t field::to_position(size_t x, size_t y) const {
     assert((x < width) && (y < height));
@@ -62,7 +65,7 @@ std::vector<coordinate> field::make_update_vector(size_t x, size_t y) {
         }
 
         result.push_back(cur);
-        
+
         _field_status[cur_position] = env::CellStatus::OPENED;
         closed_cells--;
 
@@ -167,51 +170,6 @@ void field::generate() {
     }
 }
 
-void field::print_true_field(std::ostream &stream) {
-    for (size_t cy = 0; cy < height; cy++) {
-        for (size_t cx = 0; cx < width; ++cx) {
-            stream << ' ' << static_cast<char>(_field[to_position(cx, cy)]) << ' ';
-        }
-        stream << '\n';
-    }
-}
-
-void field::print_field_status(std::ostream &stream, size_t x, size_t y) {
-    for (size_t cy = 0; cy < height; cy++) {
-        for (size_t cx = 0; cx < width; ++cx) {
-            char open_char, close_char;
-            if (cx == x && cy == y) {
-                open_char = '[';
-                close_char = ']';
-            } else {
-                open_char = close_char = ' ';
-            }
-
-            stream << open_char;
-            char print_char = '\0';
-
-            size_t cur_position = to_position(cx, cy);
-            switch(_field_status[cur_position]) {
-                case env::CellStatus::CLOSED: {
-                    print_char = '?';
-                    break;
-                }
-                case env::CellStatus::MARKED: {
-                    print_char = '!';
-                    break;
-                }
-                case env::CellStatus::OPENED: {
-                    print_char = static_cast<char>(_field[cur_position]);
-                }
-            }
-            stream << print_char;
-
-            stream << close_char;
-        }
-        stream << '\n';
-    }
-}
-
 void field::begin() {
     generate();
     std::fill(_field_status.begin(), _field_status.end(), env::CellStatus::CLOSED);
@@ -242,4 +200,69 @@ env::GameStatus field::get_game_status() {
     }
 
     return env::GameStatus::PLAYING;
+}
+
+void field::print_true_field(std::ostream &stream) {
+    for (size_t cy = 0; cy < height; cy++) {
+        for (size_t cx = 0; cx < width; ++cx) {
+            size_t position = to_position(cx, cy);
+            if (_field[position] == env::Cell::BOMB) {
+                stream << ' ' << red_color << static_cast<char>(_field[position]) << reset_color << ' ';
+            } else {
+                stream << ' ' << static_cast<char>(_field[position]) << ' ';
+            }
+        }
+        stream << '\n';
+    }
+}
+
+void field::print_field_status(std::ostream &stream, size_t x, size_t y) {
+    for (size_t cy = 0; cy < height; cy++) {
+        for (size_t cx = 0; cx < width; ++cx) {
+            char open_char, close_char;
+            if (cx == x && cy == y) {
+                open_char = '[';
+                close_char = ']';
+            } else {
+                open_char = close_char = ' ';
+            }
+
+            stream << open_char;
+
+            size_t cur_position = to_position(cx, cy);
+            switch(_field_status[cur_position]) {
+                case env::CellStatus::CLOSED: {
+                    stream << '?';
+                    break;
+                }
+                case env::CellStatus::MARKED: {
+                    print_color(yellow, '!');
+                    break;
+                }
+                case env::CellStatus::OPENED: {
+                    env::Cell cell = _field[cur_position];
+                    char print_char = static_cast<char>(cell);
+                    if (cell == env::Cell::BOMB) {
+                        print_color(red, print_char);
+                    } else if (cell == env::Cell::BOMBS_0) {
+                        print_color(green, print_char);
+                    } else if (cell == env::Cell::BOMBS_1 || cell == env::Cell::BOMBS_2 || cell == env::Cell::BOMBS_3) {
+                        print_color(blue, print_char);
+                    } else if (cell == env::Cell::BOMBS_4 || cell == env::Cell::BOMBS_5 || cell == env::Cell::BOMBS_6) {
+                        print_color(cyan, print_char);
+                    } else if (cell == env::Cell::BOMBS_7 || cell == env::Cell::BOMBS_8) {
+                        print_color(magenta, print_char);
+                    }
+                }
+            }
+
+            stream << close_char;
+        }
+        stream << '\n';
+    }
+}
+
+void field::print_field_header(std::ostream &stream) {
+    stream << "Left bombs: " << red_color << bombs - marks << reset_color << "\tLeft cells: "
+        << blue_color << get_closed_cells_count() << reset_color << "\n===\n\n";
 }
