@@ -48,6 +48,7 @@ private:
     size_t width, height;
     size_t bombs;
     size_t closed_cells;
+    size_t marks;
 
     std::vector<env::Cell> _field;
     std::vector<env::CellStatus> _field_status;
@@ -77,13 +78,19 @@ public:
 
     std::pair<env::CellStatus, env::Cell> get(size_t x, size_t y) const;
 
-    env::GameStatus get_game_status() {
-        return game_status;
-    }
+    env::GameStatus get_game_status();
 
     void print_true_field(std::ostream &stream);
 
     void print_field_status(std::ostream &stream, size_t x, size_t y);
+
+    size_t get_closed_cells_count() {
+        return closed_cells - marks;
+    }
+
+    size_t get_marks_count() {
+        return marks;
+    }
 };
 
 

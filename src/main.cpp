@@ -8,7 +8,7 @@ int main() {
 
     const size_t width = 10;
     const size_t height = 10;
-    const size_t n_bombs = 25;
+    const size_t n_bombs = 1;
 
     field game(width, height, n_bombs);
     game.begin();
@@ -23,6 +23,8 @@ int main() {
 
     while (true) {
         std::system("clear");
+        std::cout << "Left bombs: " << n_bombs - game.get_marks_count() << "\tLeft cells: " <<
+            game.get_closed_cells_count() << "\n===\n\n";
         game.print_field_status(std::cout, cur_x, cur_y);
 
         int cur_move = getchar();
@@ -35,7 +37,10 @@ int main() {
             }
             continue;
         } else if (cur_move == f) {
-            game.mark(cur_x, cur_y);
+            auto result = game.mark(cur_x, cur_y);
+            if (result == env::MoveResult::GAME_FINISHED) {
+                break;
+            }
         } else if (cur_move == w && cur_y - 1 < height) {
             cur_y--;
         } else if (cur_move == s && cur_y + 1 < height) {
