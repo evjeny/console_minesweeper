@@ -155,19 +155,12 @@ void field::generate() {
 }
 
 void field::print_true_field(std::ostream &stream) {
-    for (int y = 0; y < height; ++y) {
-        for (int x = 0; x < width; ++x) {
-            stream << static_cast<char>(_field[to_position(x, y)]) << ' ';
+    for (size_t cy = 0; cy < height; cy++) {
+        for (size_t cx = 0; cx < width; ++cx) {
+            stream << ' ' << static_cast<char>(_field[to_position(cx, cy)]) << ' ';
         }
         stream << '\n';
     }
-}
-
-void field::begin() {
-    generate();
-    std::fill(_field_status.begin(), _field_status.end(), env::CellStatus::CLOSED);
-    game_status = env::GameStatus::PLAYING;
-    closed_cells = width * height;
 }
 
 void field::print_field_status(std::ostream &stream, size_t x, size_t y) {
@@ -206,3 +199,9 @@ void field::print_field_status(std::ostream &stream, size_t x, size_t y) {
     }
 }
 
+void field::begin() {
+    generate();
+    std::fill(_field_status.begin(), _field_status.end(), env::CellStatus::CLOSED);
+    game_status = env::GameStatus::PLAYING;
+    closed_cells = width * height;
+}
